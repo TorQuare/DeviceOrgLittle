@@ -152,16 +152,9 @@ class DataReader:
         Collect all data from JSON sorted by ID.
         :return: Nothing
         """
-        # TODO: Cleanup
         self.__clean_dicts()
-        temp_dic = {}
-        for item in self.__dict:
-            temp_dic.update({self.__id_name: self.__get_id(item)})
-            temp_dic.update({self.__data_name: self.__dict[item]})
         for item in self.__dict:
             self.data_dict.update({self.__get_id(item): self.__dict[item]})
-        print(self.data_dict)
-        print("temp:", temp_dic)
 
     @staticmethod
     def __get_id(json_id: str):
