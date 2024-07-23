@@ -5,30 +5,75 @@
       "name": "default",
       "time": "default",
       "work_materials": {
-        "id": 0,
-        "material": "default",
-        "size": "0x0",
-        "number_of": 0,
-        "cost": 0
+        "0": {
+          "id": 0,
+          "material": "default",
+          "size": "0x0",
+          "number_of": 0,
+          "cost": 0
+        }
       },
       "materials": {
-        "id": 0,
-        "material": "default",
-        "size": "0x0",
-        "number_of": 0,
-        "time_for": 0
+        "0": {
+          "id": 0,
+          "material": "default",
+          "size": "0x0",
+          "number_of": 0,
+          "time_for": 0
+        },
+        "1": {
+          "id": 1,
+          "material": "default",
+          "size": "0x0",
+          "number_of": 0,
+          "time_for": 0
+        }
       },
       "material_cost": 0,
       "sell_cost": 0,
       "production_steps": {
-        "id": 0,
-        "step": "default",
-        "time": 0
+        "0": {
+          "id": 0,
+          "step": "default",
+          "time": 0
+        }
       },
       "ad_info": "default"
     },
     "id_1": {
       "name": "default",
+      "time": "default",
+      "work_materials": {
+        "0": {
+          "id": 0,
+          "material": "default",
+          "size": "0x0",
+          "number_of": 0,
+          "cost": 0
+        }
+      },
+      "materials": {
+        "0": {
+          "id": 0,
+          "material": "default",
+          "size": "0x0",
+          "number_of": 0,
+          "time_for": 0
+        }
+      },
+      "material_cost": 0,
+      "sell_cost": 0,
+      "production_steps": {
+        "0": {
+          "id": 0,
+          "step": "default",
+          "time": 0
+        }
+      },
+      "ad_info": "default"
+    },
+    "id_3": {
+      "name": "wrong",
       "time": "default",
       "work_materials": {
         "id": 0,

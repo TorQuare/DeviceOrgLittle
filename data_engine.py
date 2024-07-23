@@ -22,10 +22,118 @@ class BaseReader:
         return True
 
 
-class ConfigReader:
+class TreeviewConfigReader:
+
+    __ti_treeview = __material_treeview = __work_material_treeview = __steps_treeview = []
+    __ti_section = __material_section = __work_material_section = __steps_section = None
+    __section_items_str = "Items"
+    __section_tasks_str = "Tasks"
+
+    def __init__(self):
+        base_reader = BaseReader()
+        base_reader.check_exists(base_reader.config_file_name)
+        data_file = open(base_reader.config_file_name, encoding="utf-8")
+        file = json.load(data_file)
+        self.file = file["MainWindowMainloopTreeview"]
+
+    # region Public methods
+
+    def read_tasks_data(self):
+        """
+        Startup func for tasks list.
+        :return: Nothing
+        """
+        self.__define_sections(self.__section_tasks_str)
+        self.__ti_treeview = self.__generate_treeview_data(self.__ti_section)
+
+    def read_items_data(self):
+        """
+        Startup func for items list.
+        :return: Nothing
+        """
+        self.__define_sections(self.__section_items_str)
+        self.__ti_treeview = self.__generate_treeview_data(self.__ti_section)
+        self.__material_treeview = self.__generate_treeview_data(self.__material_section)
+        self.__work_material_treeview = self.__generate_treeview_data(self.__work_material_section)
+        self.__steps_treeview = self.__generate_treeview_data(self.__steps_section)
+
+    def return_ti_treeview(self):
+        """
+        Returns tasks/items treeview list.
+        :return: arr with settings for tasks/items treeview
+        """
+        return self.__ti_treeview
+
+    def return_material_treeview(self):
+        """
+        Returns materials treeview list.
+        :return: arr with settings for materials treeview
+        """
+        return self.__material_treeview
+
+    def return_work_material_treeview(self):
+        """
+        Returns work materials treeview list.
+        :return: arr with settings for work materials treeview
+        """
+        return self.__work_material_treeview
+
+    def return_steps_treeview(self):
+        """
+        Returns steps treeview list.
+        :return: arr with settings for steps treeview
+        """
+        return self.__steps_treeview
+
+    # endregion
+
+    # region Private methods
+
+    def __generate_treeview_data(self, section):
+        """
+        Generates arr with data read from JSON.
+        :param dict section: dict with data needed to generate treeview.
+        :return: arr of values from JSON
+        """
+        temp_arr = []
+        temp_arr.append(self.__create_col_numbers(section["num_of_cols"]))
+        temp_arr.append(section["cols"])
+        temp_arr.append(section["values_to_read"])
+        return temp_arr
+
+    @staticmethod
+    def __create_col_numbers(num_of_cols: int):
+        """
+        Generate list with number of columns.
+        :param int num_of_cols: numbers of columns read from JSON
+        :return: string arr with numbers of columns
+        """
+        temp_arr = []
+        for iterator in range(num_of_cols):
+           temp_arr.append("c" + str(iterator + 1))
+        return temp_arr
+
+    def __define_sections(self, section):
+        """
+        Prepares sections reading from JSON.
+        :param str section: name of JSON section to read
+        :return: Nothing
+        """
+        file = self.file[section]
+        self.__ti_section = file["ti_treeview"]
+        if section == self.__section_items_str:
+            self.__material_section = file["material_treeview"]
+            self.__work_material_section = file["work_material_treeview"]
+            self.__steps_section = file["steps_treeview"]
+
+    # endregion
+
+
+class WindowConfigReader:
 
     __size_data = {}
     __title = str
+    __window_section = __mainloop_section = None
 
     def __init__(self):
         base_reader = BaseReader()
@@ -35,14 +143,55 @@ class ConfigReader:
 
     # region Public methods
 
+    # region MainWindowMainloop
+
+    def return_ti_list_height(self):
+        """
+        Returns tasks/item list height
+        :return: int height of list
+        """
+        return self.__mainloop_section["ti_list_height"]
+
+    def return_material_list_height(self):
+        """
+        Returns material list height
+        :return: int height of list
+        """
+        return self.__mainloop_section["item_material_list_height"]
+
+    def return_work_material_list_height(self):
+        """
+        Returns work material list height
+        :return: int height of list
+        """
+        return self.__mainloop_section["item_work_material_list_height"]
+
+    def return_steps_list_height(self):
+        """
+        Returns steps list height
+        :return: int height of list
+        """
+        return self.__mainloop_section["steps_list_height"]
+
+    def return_default_view(self):
+        """
+        Returns default view setting
+        :return: str of default view
+        """
+        return self.__mainloop_section["default_main_view"]
+
+    # endregion
+
+    # region MainWindow
     def read_main_window_config(self):
         """
         Startup func.
         :return: Nothing
         """
-        section = self.file["MainWindow"]
-        self.__read_window_size(section)
-        self.__read_window_title(section)
+        self.__window_section = self.file["MainWindow"]
+        self.__mainloop_section = self.file["MainWindowMainloop"]
+        self.__read_window_size(self.__window_section)
+        self.__read_window_title(self.__window_section)
 
     def return_geometry(self):
         """
@@ -77,6 +226,8 @@ class ConfigReader:
         :return: str window title
         """
         return self.__title
+
+    # endregion
 
     # endregion
     # region Private methods

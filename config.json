@@ -8,5 +8,102 @@
       "geometry": "700x500+1500+300"
     },
     "title": "DevOrgLittle"
+  },
+  "MainWindowMainloop": {
+    "_comment": "Accepted values: Items/Tasks",
+    "default_main_view": "Items",
+    "ti_list_height": 5,
+    "item_material_list_height": 5,
+    "item_work_material_list_height": 5,
+    "steps_list_height": 5
+  },
+  "MainWindowMainloopTreeview": {
+    "Items": {
+      "ti_treeview": {
+        "num_of_cols": 6,
+        "cols": [
+          ["ID", 50],
+          ["Name", 120],
+          ["Time", 100],
+          ["Cost", 100],
+          ["Profit", 100],
+          ["Ad info", 200]
+        ],
+        "values_to_read": [
+          "name",
+          "time",
+          "material_cost",
+          "sell_cost",
+          "ad_info"
+        ]
+      },
+      "work_material_treeview": {
+        "num_of_cols": 5,
+        "cols": [
+          ["ID", 50],
+          ["Material", 120],
+          ["Size", 100],
+          ["Amount", 100],
+          ["Cost", 100]
+        ],
+        "values_to_read": [
+          "id",
+          "material",
+          "size",
+          "number_of",
+          "cost"
+        ]
+      },
+      "material_treeview": {
+        "num_of_cols": 5,
+        "cols": [
+          ["ID", 50],
+          ["Material", 120],
+          ["Size", 100],
+          ["Amount", 100],
+          ["Time", 100]
+        ],
+        "values_to_read": [
+          "id",
+          "material",
+          "size",
+          "number_of",
+          "time_for"
+        ]
+      },
+      "steps_treeview": {
+        "num_of_cols": 3,
+        "cols": [
+          ["ID", 50],
+          ["Step", 120],
+          ["Time", 100]
+        ],
+        "values_to_read": [
+          "id",
+          "step",
+          "time"
+        ]
+      }
+    },
+    "Tasks": {
+      "ti_treeview": {
+        "num_of_cols": 6,
+        "cols": [
+          ["ID", 50],
+          ["Item name", 120],
+          ["Date", 100],
+          ["S/N", 100],
+          ["Profit", 100],
+          ["Ad info", 200]
+        ],
+        "values_to_read": [
+          "item_name",
+          "date",
+          "s/n",
+          "sell_cost",
+          "ad_info"
+        ]
+      }
+    }
   }
 }
