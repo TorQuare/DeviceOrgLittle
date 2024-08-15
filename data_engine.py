@@ -3,6 +3,41 @@ import json
 
 class BaseReader:
 
+    item_struct = {
+        "next_id": {
+            "name": "default",
+            "time": "default",
+            "work_materials": {
+                "id": {
+                    "id": 0,
+                    "material": "default",
+                    "size": "0x0",
+                    "number_of": 0,
+                    "cost": 0
+                }
+            },
+            "materials": {
+                "next_id": {
+                    "id": 0,
+                    "material": "default",
+                    "size": "0x0",
+                    "number_of": 0,
+                    "time_for": 0
+                },
+            },
+            "material_cost": 0,
+            "sell_cost": 0,
+            "production_steps": {
+                "next_id": {
+                    "id": 0,
+                    "step": "default",
+                    "time": 0
+                }
+            },
+            "ad_info": "default"
+        }
+    }
+
     def __init__(self):
         self.library_file_name = "data.json"
         self.config_file_name = "config.json"
@@ -325,3 +360,10 @@ class DataReader:
         self.data_dict.clear()
 
     # endregion
+
+
+    class DataWriter:
+
+        def __init__(self):
+            base = BaseReader()
+            self.

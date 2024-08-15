@@ -1,3 +1,4 @@
+import tkinter
 import tkinter.ttk
 from tkinter import *
 import data_engine
@@ -136,6 +137,7 @@ class MainWindow:
     }
     select_list_rad_btn_x_start_pos = 250
     treeview_ti_obj = treeview_materials_obj = treeview_work_materials_obj = treeview_steps_obj = None
+    treeview_materials_label = treeview_work_materials_label = treeview_steps_label = None
 
     def __init__(self):
         config = data_engine.WindowConfigReader()
@@ -213,10 +215,13 @@ class MainWindow:
             """
             if self.treeview_materials_obj:
                 self.treeview_materials_obj.destroy()
+                self.treeview_materials_label.destroy()
             if self.treeview_work_materials_obj:
                 self.treeview_work_materials_obj.destroy()
+                self.treeview_work_materials_label.destroy()
             if self.treeview_steps_obj:
                 self.treeview_steps_obj.destroy()
+                self.treeview_steps_label.destroy()
 
         def generate_ti_view_mainloop():
             """
@@ -253,28 +258,27 @@ class MainWindow:
     # endregion
     # region Private methods
 
-    @staticmethod
-    def __read_focus_data(item_type: bool, item_id):
-        data = data_engine.DataReader(item_type)
-        return data.return_data_dict(item_id)
-
     # region Item view
 
     def __generate_item_details_view(self, frame, item_id):
         self.__create_treeview_details(frame, item_id)
+        self.__create_treeview_labels(frame)
 
-    def __create_treeview_materials(self, frame, item_id):
-        """
-        Creates treeview with materials
-        :param frame: frame object
-        :param int item_id: selected item id
-        :return: treeview object
-        """
-        setting_obj = MainWindowMainloopDetailSettings(True, item_id)
-        settings = setting_obj.return_material_treeview_settings()
-        tree = self.__create_treeview_generic(frame, self.item_material_height, settings)
-        tree.place(x=15, y=200)
-        self.treeview_materials_obj = tree
+    def __create_treeview_labels(self, frame):
+        # TODO: przeliczyć i dopisać uwzględnienie wysokości treeview
+        start_position = 178
+        result = []
+        label_list = ["Materials", "Work Materials", "Steps list"]
+        for label_data in label_list:
+            text_var = StringVar()
+            text_var.set(label_data)
+            label = tkinter.Label(frame, textvariable=text_var)
+            label.place(x=20, y=start_position)
+            start_position += 150
+            result.append(label)
+        self.treeview_materials_label = result[0]
+        self.treeview_work_materials_label = result[1]
+        self.treeview_steps_label = result[2]
 
     def __create_treeview_details(self, frame, item_id):
         """
@@ -284,11 +288,7 @@ class MainWindow:
         :return: treeview object
         """
         setting_obj = MainWindowMainloopDetailSettings(True, item_id)
-        mainloop_obj_list = [
-            self.treeview_materials_obj,
-            self.treeview_work_materials_obj,
-            self.treeview_steps_obj
-        ]
+        mainloop_obj_list = []
         details_commands_list = [
             setting_obj.return_material_treeview_settings(),
             setting_obj.return_work_material_treeview_settings(),
@@ -300,15 +300,19 @@ class MainWindow:
             self.steps_height
         ]
         start_position = 200
-        for iterator in range(len(mainloop_obj_list)):
+        for iterator in range(len(details_commands_list)):
             tree = self.__create_treeview_generic(
                 frame,
                 mainloop_obj_heights[iterator],
                 details_commands_list[iterator]
             )
             tree.place(x=15, y=start_position)
-            mainloop_obj_list[iterator] = tree
+            mainloop_obj_list.append(tree)
             start_position += 150
+
+        self.treeview_materials_obj = mainloop_obj_list[0]
+        self.treeview_work_materials_obj = mainloop_obj_list[1]
+        self.treeview_steps_obj = mainloop_obj_list[2]
 
     # endregion
 
