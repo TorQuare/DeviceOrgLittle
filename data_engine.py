@@ -330,6 +330,21 @@ class DataReader:
         dict_id = "id_" + str(item_id)
         return self.__dict[dict_id]
 
+    def return_ids(self):
+        """
+        Startup func.
+        :return: list of ids
+        """
+        self.__sort_via_id()
+        return sorted(self.data_dict.keys())
+
+    def return_last_id(self):
+        """
+        Startup func.
+        :return: int last id
+        """
+        return self.return_ids()[-1]
+
     # endregion
     # region Private methods
 
@@ -362,8 +377,289 @@ class DataReader:
     # endregion
 
 
-    class DataWriter:
+class ItemsWriter:
 
-        def __init__(self):
-            base = BaseReader()
-            self.
+    __materials_struct = {
+        "id": int,
+        "material": str,
+        "size": str,
+        "number_of": int,
+        "time_for": int
+    }
+    __work_materials_struct = {
+        "id": int,
+        "material": str,
+        "size": str,
+        "number_of": int,
+        "cost": float
+    }
+    __steps_struct = {
+        "id": int,
+        "step": str,
+        "time": int
+    }
+    __loaded_item = {}
+    __materials_dict = {}
+    __work_materials_dict = {}
+    __steps_dict = {}
+
+    def __init__(self):
+        read_base = DataReader(True)
+        self.json_update = UpdateJson(True)
+        self.last_id = read_base.return_last_id()
+        self.ids = read_base.return_ids()
+
+    # region Public Methods
+
+    def add_new_item(self,
+                     name: str,
+                     time: str,
+                     material_cost: float,
+                     sell_cost: float,
+                     ad_info: str = None):
+        """
+        Adds new item to json file.
+        :param str name: name
+        :param str time: time
+        :param float material_cost: material cost
+        :param float sell_cost: prince
+        :param str ad_info: additional info
+        :return: Nothing
+        """
+        new_id = "id_" + str(int(self.last_id) + 1)
+        if not ad_info:
+            ad_info = "N/A"
+        data = {
+            "name": name,
+            "time": time,
+            "work_materials": self.__work_materials_dict,
+            "materials": self.__materials_dict,
+            "material_cost": material_cost,
+            "sell_cost": sell_cost,
+            "production_steps": self.__steps_dict,
+            "ad_info": ad_info
+        }
+        self.json_update.update_json(new_id, data)
+
+    def update_item(self,
+                    json_id: int,
+                    name: str = None,
+                    time: str = None,
+                    work_materials: dict = None,
+                    materials: dict = None,
+                    material_cost: float = None,
+                    sell_cost: float = None,
+                    production_steps: dict = None,
+                    ad_info: str = None):
+        return None
+
+    # region Materials
+
+    def add_materials(self, *data: list):
+        """
+        Adds all materials data from list to dict.
+        :param list data: lists with material data
+        :return: Nothing
+        """
+        for item in data:
+            item.insert(0, len(self.__materials_dict))
+            self.__render_temp_dict(item, self.__materials_struct)
+            self.__update_materials_dict(
+                len(self.__materials_dict),
+                self.__render_temp_dict(item, self.__materials_struct)
+            )
+
+    def add_material(self, material: str, size: str, number_of: int, time_for: int):
+        """
+        Adds simple material to dict.
+        :param str material: material name
+        :param str size: material size
+        :param int number_of: number of material
+        :param int time_for: time spend on material
+        :return: Nothing
+        """
+        temp_list = [
+            len(self.__materials_dict),
+            material,
+            size,
+            number_of,
+            time_for
+        ]
+        self.__update_materials_dict(
+            len(self.__materials_dict),
+            self.__render_temp_dict(temp_list, self.__materials_struct)
+        )
+
+    # endregion
+    # region Work Materials
+
+    def add_work_materials(self, *data: list):
+        """
+        Adds all materials data from list to dict.
+        :param list data: lists with material data
+        :return: Nothing
+        """
+        for item in data:
+            item.insert(0, len(self.__work_materials_dict))
+            self.__render_temp_dict(item, self.__work_materials_struct)
+            self.__update_work_materials_dict(
+                len(self.__work_materials_dict),
+                self.__render_temp_dict(item, self.__work_materials_struct)
+            )
+
+    def add_work_material(self, material: str, size: str, number_of: int, cost: float):
+        """
+        Adds simple material to dict.
+        :param str material: material name
+        :param str size: material size
+        :param int number_of: number of material
+        :param float cost: time spend on material
+        :return: Nothing
+        """
+        temp_list = [
+            len(self.__work_materials_dict),
+            material,
+            size,
+            number_of,
+            cost
+        ]
+        self.__update_work_materials_dict(
+            len(self.__work_materials_dict),
+            self.__render_temp_dict(temp_list, self.__work_materials_struct)
+        )
+
+    # endregion
+    # region Steps
+
+    def add_steps(self, *data: list):
+        """
+        Adds all materials data from list to dict.
+        :param list data: lists with material data
+        :return: Nothing
+        """
+        for item in data:
+            item.insert(0, len(self.__steps_dict))
+            self.__render_temp_dict(item, self.__steps_struct)
+            self.__update_steps_dict(
+                len(self.__steps_dict),
+                self.__render_temp_dict(item, self.__steps_struct)
+            )
+        for item in data:
+            self.add_step(
+                item[0],
+                item[1]
+            )
+
+    def add_step(self, step: str, time: int):
+        """
+        Adds simple step to dict.
+        :param str step: step
+        :param int time: time spent on step
+        :return: Nothing
+        """
+        temp_list = [
+            len(self.__steps_dict),
+            step,
+            time
+        ]
+        self.__update_steps_dict(
+            len(self.__steps_dict),
+            self.__render_temp_dict(temp_list, self.__steps_struct)
+        )
+
+    # endregion
+    # endregion
+
+    # region Private Methods
+
+    # region Update dicts
+
+    def __update_materials_dict(self, last_id: int, data: dict):
+        """
+        Updates materials dict.
+        :param int last_id: last material ID
+        :param dict data: dict with material data
+        :return: Nothing
+        """
+        self.__materials_dict.update({str(last_id): {}})
+        for key, value in data.items():
+            self.__materials_dict[str(last_id)].update({key: value})
+
+    def __update_work_materials_dict(self, last_id: int, data: dict):
+        """
+        Updates materials dict.
+        :param int last_id: last material ID
+        :param dict data: dict with material data
+        :return: Nothing
+        """
+        self.__work_materials_dict.update({str(last_id): {}})
+        for key, value in data.items():
+            self.__work_materials_dict[str(last_id)].update({key: value})
+
+    def __update_steps_dict(self, last_id: int, data: dict):
+        """
+        Updates materials dict.
+        :param int last_id: last material ID
+        :param dict data: dict with material data
+        :return: Nothing
+        """
+        self.__steps_dict.update({str(last_id): {}})
+        for key, value in data.items():
+            self.__steps_dict[str(last_id)].update({key: value})
+
+    # endregion
+
+    @staticmethod
+    def __render_temp_dict(data: list, struct: dict):
+        """
+        Renders a temporary dict from given data and for given struct.
+        :param list data: list with material data
+        :param dict struct: dict struct
+        :return: dict with correlated keys and values
+        """
+        result = struct
+        iterator = 0
+        for key in struct.keys():
+            result[key] = data[iterator]
+            iterator += 1
+        return result
+
+    # endregion
+
+
+class UpdateJson:
+
+    __item_section_name = "Items"
+    __tasks_section_name = "Tasks"
+    __section_dict = dict
+    __loaded_file = dict
+
+    def __init__(self, item_type: bool):
+        base = BaseReader()
+        self.file_name = base.library_file_name
+        base.check_exists(self.file_name)
+        if item_type:
+            self.section = self.__item_section_name
+        if not item_type:
+            self.section = self.__tasks_section_name
+
+    def update_json(self, json_id: str, data: dict):
+        """
+        Rewrites json file.
+        :param str json_id: new item/task id
+        :param dict data: new data to update
+        :return: Nothing
+        """
+        self.__load_json()
+        with open(self.file_name, "w", encoding="utf-8") as data_file:
+            self.__section_dict.update({json_id: data})
+            json.dump(self.__loaded_file, data_file, ensure_ascii=False, indent=4)
+
+    def __load_json(self):
+        """
+        Loads json file to class variable
+        :return: Nothing
+        """
+        with open(self.file_name, "r", encoding="utf-8") as data_file:
+            self.__loaded_file = json.load(data_file)
+        self.__section_dict = self.__loaded_file[self.section]

@@ -1,115 +1,184 @@
 {
-  "Items":
-  {
-    "id_0": {
-      "name": "default",
-      "time": "default",
-      "work_materials": {
-        "0": {
-          "id": 0,
-          "material": "default",
-          "size": "0x0",
-          "number_of": 0,
-          "cost": 0
-        }
-      },
-      "materials": {
-        "0": {
-          "id": 0,
-          "material": "default",
-          "size": "0x0",
-          "number_of": 0,
-          "time_for": 0
+    "Items": {
+        "id_0": {
+            "name": "default",
+            "time": "default",
+            "work_materials": {
+                "0": {
+                    "id": 0,
+                    "material": "default",
+                    "size": "0x0",
+                    "number_of": 0,
+                    "cost": 0
+                }
+            },
+            "materials": {
+                "0": {
+                    "id": 0,
+                    "material": "default",
+                    "size": "0x0",
+                    "number_of": 0,
+                    "time_for": 0
+                },
+                "1": {
+                    "id": 1,
+                    "material": "default",
+                    "size": "0x0",
+                    "number_of": 0,
+                    "time_for": 0
+                }
+            },
+            "material_cost": 0,
+            "sell_cost": 0,
+            "production_steps": {
+                "0": {
+                    "id": 0,
+                    "step": "default",
+                    "time": 0
+                }
+            },
+            "ad_info": "default"
         },
-        "1": {
-          "id": 1,
-          "material": "default",
-          "size": "0x0",
-          "number_of": 0,
-          "time_for": 0
+        "id_1": {
+            "name": "default",
+            "time": "default",
+            "work_materials": {
+                "0": {
+                    "id": 0,
+                    "material": "default",
+                    "size": "0x0",
+                    "number_of": 0,
+                    "cost": 0
+                }
+            },
+            "materials": {
+                "0": {
+                    "id": 0,
+                    "material": "default",
+                    "size": "0x0",
+                    "number_of": 0,
+                    "time_for": 0
+                }
+            },
+            "material_cost": 0,
+            "sell_cost": 0,
+            "production_steps": {
+                "0": {
+                    "id": 0,
+                    "step": "default",
+                    "time": 0
+                }
+            },
+            "ad_info": "default"
+        },
+        "id_3": {
+            "name": "wrong",
+            "time": "default",
+            "work_materials": {
+                "id": 0,
+                "material": "default",
+                "size": "0x0",
+                "number_of": 0,
+                "cost": 0
+            },
+            "materials": {
+                "id": 0,
+                "material": "default",
+                "size": "0x0",
+                "number_of": 0,
+                "time_for": 0
+            },
+            "material_cost": 0,
+            "sell_cost": 0,
+            "production_steps": {
+                "id": 0,
+                "step": "default",
+                "time": 0
+            },
+            "ad_info": "default"
+        },
+        "id_4": {
+            "name": "test",
+            "time": "3 dni",
+            "work_materials": {
+                "0": {
+                    "id": 0,
+                    "material": "Drewno",
+                    "size": "15 cm",
+                    "number_of": 3,
+                    "cost": 5
+                },
+                "1": {
+                    "id": 1,
+                    "material": "dr2",
+                    "size": "55 cm",
+                    "number_of": 4,
+                    "cost": 9
+                },
+                "2": {
+                    "id": 2,
+                    "material": "ite",
+                    "size": "90 m",
+                    "number_of": 10,
+                    "cost": 55
+                }
+            },
+            "materials": {
+                "0": {
+                    "id": 0,
+                    "material": "Drewno",
+                    "size": "15 cm",
+                    "number_of": 3,
+                    "time_for": 5
+                },
+                "1": {
+                    "id": 1,
+                    "material": "dr2",
+                    "size": "55 cm",
+                    "number_of": 4,
+                    "time_for": 9
+                },
+                "2": {
+                    "id": 2,
+                    "material": "ite",
+                    "size": "90 m",
+                    "number_of": 10,
+                    "time_for": 55
+                }
+            },
+            "material_cost": 350,
+            "sell_cost": 667.5,
+            "production_steps": {
+                "0": {
+                    "id": 0,
+                    "step": "cięcie drewna",
+                    "time": 30
+                },
+                "1": {
+                    "id": 1,
+                    "step": "ĆD",
+                    "time": 10
+                },
+                "2": {
+                    "id": 2,
+                    "step": "żywica",
+                    "time": 50
+                }
+            },
+            "ad_info": "Brak"
         }
-      },
-      "material_cost": 0,
-      "sell_cost": 0,
-      "production_steps": {
-        "0": {
-          "id": 0,
-          "step": "default",
-          "time": 0
-        }
-      },
-      "ad_info": "default"
     },
-    "id_1": {
-      "name": "default",
-      "time": "default",
-      "work_materials": {
-        "0": {
-          "id": 0,
-          "material": "default",
-          "size": "0x0",
-          "number_of": 0,
-          "cost": 0
+    "Tasks": {
+        "id_0": {
+            "item_id": 0,
+            "item_name": "default",
+            "s/n": "default",
+            "fv": "default",
+            "date": "29.02.24",
+            "sell_cost": 0,
+            "time_days": 0,
+            "time_hours": 0,
+            "ad_info": "default"
         }
-      },
-      "materials": {
-        "0": {
-          "id": 0,
-          "material": "default",
-          "size": "0x0",
-          "number_of": 0,
-          "time_for": 0
-        }
-      },
-      "material_cost": 0,
-      "sell_cost": 0,
-      "production_steps": {
-        "0": {
-          "id": 0,
-          "step": "default",
-          "time": 0
-        }
-      },
-      "ad_info": "default"
-    },
-    "id_3": {
-      "name": "wrong",
-      "time": "default",
-      "work_materials": {
-        "id": 0,
-        "material": "default",
-        "size": "0x0",
-        "number_of": 0,
-        "cost": 0
-      },
-      "materials": {
-        "id": 0,
-        "material": "default",
-        "size": "0x0",
-        "number_of": 0,
-        "time_for": 0
-      },
-      "material_cost": 0,
-      "sell_cost": 0,
-      "production_steps": {
-        "id": 0,
-        "step": "default",
-        "time": 0
-      },
-      "ad_info": "default"
     }
-  },
-  "Tasks": {
-    "id_0": {
-      "item_id": 0,
-      "item_name": "default",
-      "s/n": "default",
-      "fv": "default",
-      "date": "29.02.24",
-      "sell_cost": 0,
-      "time_days": 0,
-      "time_hours": 0,
-      "ad_info": "default"
-    }
-  }
 }
