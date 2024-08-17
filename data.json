@@ -40,7 +40,7 @@
             "ad_info": "default"
         },
         "id_1": {
-            "name": "default",
+            "name": "correct",
             "time": "default",
             "work_materials": {
                 "0": {
@@ -96,76 +96,6 @@
                 "time": 0
             },
             "ad_info": "default"
-        },
-        "id_4": {
-            "name": "test",
-            "time": "3 dni",
-            "work_materials": {
-                "0": {
-                    "id": 0,
-                    "material": "Drewno",
-                    "size": "15 cm",
-                    "number_of": 3,
-                    "cost": 5
-                },
-                "1": {
-                    "id": 1,
-                    "material": "dr2",
-                    "size": "55 cm",
-                    "number_of": 4,
-                    "cost": 9
-                },
-                "2": {
-                    "id": 2,
-                    "material": "ite",
-                    "size": "90 m",
-                    "number_of": 10,
-                    "cost": 55
-                }
-            },
-            "materials": {
-                "0": {
-                    "id": 0,
-                    "material": "Drewno",
-                    "size": "15 cm",
-                    "number_of": 3,
-                    "time_for": 5
-                },
-                "1": {
-                    "id": 1,
-                    "material": "dr2",
-                    "size": "55 cm",
-                    "number_of": 4,
-                    "time_for": 9
-                },
-                "2": {
-                    "id": 2,
-                    "material": "ite",
-                    "size": "90 m",
-                    "number_of": 10,
-                    "time_for": 55
-                }
-            },
-            "material_cost": 350,
-            "sell_cost": 667.5,
-            "production_steps": {
-                "0": {
-                    "id": 0,
-                    "step": "cięcie drewna",
-                    "time": 30
-                },
-                "1": {
-                    "id": 1,
-                    "step": "ĆD",
-                    "time": 10
-                },
-                "2": {
-                    "id": 2,
-                    "step": "żywica",
-                    "time": 50
-                }
-            },
-            "ad_info": "Brak"
         }
     },
     "Tasks": {

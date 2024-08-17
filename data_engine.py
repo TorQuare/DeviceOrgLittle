@@ -3,44 +3,20 @@ import json
 
 class BaseReader:
 
-    item_struct = {
-        "next_id": {
-            "name": "default",
-            "time": "default",
-            "work_materials": {
-                "id": {
-                    "id": 0,
-                    "material": "default",
-                    "size": "0x0",
-                    "number_of": 0,
-                    "cost": 0
-                }
-            },
-            "materials": {
-                "next_id": {
-                    "id": 0,
-                    "material": "default",
-                    "size": "0x0",
-                    "number_of": 0,
-                    "time_for": 0
-                },
-            },
-            "material_cost": 0,
-            "sell_cost": 0,
-            "production_steps": {
-                "next_id": {
-                    "id": 0,
-                    "step": "default",
-                    "time": 0
-                }
-            },
-            "ad_info": "default"
-        }
-    }
-
     def __init__(self):
         self.library_file_name = "data.json"
         self.config_file_name = "config.json"
+
+    @staticmethod
+    def load_json(file_name: str):
+        """
+        Loads JSON file and returns dict.
+        :param str file_name: JSON file name to load
+        :return: dict from json
+        """
+        with open(file_name, "r", encoding="utf-8") as data_file:
+            loaded_file = json.load(data_file)
+        return loaded_file
 
     @staticmethod
     def check_exists(file_name):
@@ -67,8 +43,7 @@ class TreeviewConfigReader:
     def __init__(self):
         base_reader = BaseReader()
         base_reader.check_exists(base_reader.config_file_name)
-        data_file = open(base_reader.config_file_name, encoding="utf-8")
-        file = json.load(data_file)
+        file = base_reader.load_json(base_reader.config_file_name)
         self.file = file["MainWindowMainloopTreeview"]
 
     # region Public methods
@@ -173,8 +148,7 @@ class WindowConfigReader:
     def __init__(self):
         base_reader = BaseReader()
         base_reader.check_exists(base_reader.config_file_name)
-        self.data_file = open(base_reader.config_file_name, encoding="utf-8")
-        self.file = json.load(self.data_file)
+        self.file = base_reader.load_json(base_reader.config_file_name)
 
     # region Public methods
 
@@ -304,8 +278,7 @@ class DataReader:
     def __init__(self, item_type: bool):
         base_reader = BaseReader()
         base_reader.check_exists(base_reader.library_file_name)
-        self.data_file = open(base_reader.library_file_name, encoding="utf-8")
-        self.file = json.load(self.data_file)
+        self.file = base_reader.load_json(base_reader.library_file_name)
         if item_type:
             self.__dict = self.file[self.__item_type]
         else:
@@ -379,6 +352,16 @@ class DataReader:
 
 class ItemsWriter:
 
+    __item_struct = {
+        "name": str,
+        "time": str,
+        "work_materials": dict,
+        "materials": dict,
+        "material_cost": float,
+        "sell_cost": float,
+        "production_steps": dict,
+        "ad_info": str
+    }
     __materials_struct = {
         "id": int,
         "material": str,
@@ -398,6 +381,8 @@ class ItemsWriter:
         "step": str,
         "time": int
     }
+    __default_int = 0
+    __default_str = "N/A"
     __loaded_item = {}
     __materials_dict = {}
     __work_materials_dict = {}
@@ -426,19 +411,21 @@ class ItemsWriter:
         :param str ad_info: additional info
         :return: Nothing
         """
-        new_id = "id_" + str(int(self.last_id) + 1)
+        new_id = self.__render_json_id(int(self.last_id) + 1)
         if not ad_info:
-            ad_info = "N/A"
-        data = {
-            "name": name,
-            "time": time,
-            "work_materials": self.__work_materials_dict,
-            "materials": self.__materials_dict,
-            "material_cost": material_cost,
-            "sell_cost": sell_cost,
-            "production_steps": self.__steps_dict,
-            "ad_info": ad_info
-        }
+            ad_info = self.__check_default(str)
+        data = self.__render_item_dict(
+            self.__prepare_data_list(
+                name,
+                time,
+                self.__work_materials_dict,
+                self.__materials_dict,
+                material_cost,
+                sell_cost,
+                self.__steps_dict,
+                ad_info
+            )
+        )
         self.json_update.update_json(new_id, data)
 
     def update_item(self,
@@ -451,6 +438,22 @@ class ItemsWriter:
                     sell_cost: float = None,
                     production_steps: dict = None,
                     ad_info: str = None):
+        self.__load_json_item(
+            self.__render_json_id(json_id)
+        )
+        data = self.__render_item_dict(
+            self.__prepare_data_list(
+                name if name else self.__loaded_item["name"],
+                time if time else self.__loaded_item["time"],
+                work_materials if work_materials else self.__loaded_item["work_materials"],
+                materials if materials else self.__loaded_item["materials"],
+                material_cost if material_cost else self.__loaded_item["material_cost"],
+                sell_cost if sell_cost else self.__loaded_item["sell_cost"],
+                production_steps if production_steps else self.__loaded_item["production_steps"],
+                ad_info if ad_info else self.__loaded_item["ad_info"]
+            )
+        )
+        self.json_update.update_json(self.__render_json_id(json_id), data)
         return None
 
     # region Materials
@@ -462,14 +465,14 @@ class ItemsWriter:
         :return: Nothing
         """
         for item in data:
-            item.insert(0, len(self.__materials_dict))
-            self.__render_temp_dict(item, self.__materials_struct)
-            self.__update_materials_dict(
-                len(self.__materials_dict),
-                self.__render_temp_dict(item, self.__materials_struct)
+            self.add_work_material(
+                item[0],
+                item[1],
+                item[2],
+                item[3]
             )
 
-    def add_material(self, material: str, size: str, number_of: int, time_for: int):
+    def add_material(self, material: str, size: str, time_for: int, number_of: int = None):
         """
         Adds simple material to dict.
         :param str material: material name
@@ -500,14 +503,14 @@ class ItemsWriter:
         :return: Nothing
         """
         for item in data:
-            item.insert(0, len(self.__work_materials_dict))
-            self.__render_temp_dict(item, self.__work_materials_struct)
-            self.__update_work_materials_dict(
-                len(self.__work_materials_dict),
-                self.__render_temp_dict(item, self.__work_materials_struct)
+            self.add_work_material(
+                item[0],
+                item[1],
+                item[2],
+                item[3]
             )
 
-    def add_work_material(self, material: str, size: str, number_of: int, cost: float):
+    def add_work_material(self, material: str, size: str, number_of: int = None, cost: float = None):
         """
         Adds simple material to dict.
         :param str material: material name
@@ -516,6 +519,10 @@ class ItemsWriter:
         :param float cost: time spend on material
         :return: Nothing
         """
+        if not number_of:
+            number_of = self.__check_default(int)
+        if not cost:
+            cost = self.__check_default(float)
         temp_list = [
             len(self.__work_materials_dict),
             material,
@@ -537,13 +544,6 @@ class ItemsWriter:
         :param list data: lists with material data
         :return: Nothing
         """
-        for item in data:
-            item.insert(0, len(self.__steps_dict))
-            self.__render_temp_dict(item, self.__steps_struct)
-            self.__update_steps_dict(
-                len(self.__steps_dict),
-                self.__render_temp_dict(item, self.__steps_struct)
-            )
         for item in data:
             self.add_step(
                 item[0],
@@ -624,6 +624,64 @@ class ItemsWriter:
             iterator += 1
         return result
 
+    @classmethod
+    def __check_default(cls, variable):
+        """
+        Returns an default value for given var type.
+        :param variable: variable type
+        :return: default value
+        """
+        if variable == str:
+            return cls.__default_str
+        if variable == int:
+            return cls.__default_int
+        if variable == float:
+            return cls.__default_int
+
+    def __load_json_item(self, json_id: str):
+        """
+        Loads given item into class variable
+        :param str json_id: item id
+        :return: Nothing
+        """
+        base = BaseReader()
+        file = base.load_json(base.library_file_name)
+        self.__loaded_item = file["Items"][json_id]
+
+    @staticmethod
+    def __render_json_id(json_id: int):
+        """
+        Generates item id writen like in json file
+        :param int json_id: int value of json id
+        :return: str json id
+        """
+        return "id_" + str(json_id)
+
+    def __render_item_dict(self, data: list):
+        """
+        Generates dict from given data.
+        :param list data: list with values
+        :return: dict prepared to save in json file
+        """
+        temp_dict = {}
+        iterator = 0
+        for key in self.__item_struct.keys():
+            temp_dict.update({key: data[iterator]})
+            iterator += 1
+        return temp_dict
+
+    @staticmethod
+    def __prepare_data_list(*args):
+        """
+        Creates list form given args
+        :param args: item to add
+        :return: list of given items
+        """
+        temp_list = []
+        for item in args:
+            temp_list.append(item)
+        return temp_list
+
     # endregion
 
 
@@ -635,9 +693,9 @@ class UpdateJson:
     __loaded_file = dict
 
     def __init__(self, item_type: bool):
-        base = BaseReader()
-        self.file_name = base.library_file_name
-        base.check_exists(self.file_name)
+        self.base = BaseReader()
+        self.file_name = self.base.library_file_name
+        self.base.check_exists(self.file_name)
         if item_type:
             self.section = self.__item_section_name
         if not item_type:
@@ -660,6 +718,77 @@ class UpdateJson:
         Loads json file to class variable
         :return: Nothing
         """
-        with open(self.file_name, "r", encoding="utf-8") as data_file:
-            self.__loaded_file = json.load(data_file)
+        self.__loaded_file = self.base.load_json(self.file_name)
         self.__section_dict = self.__loaded_file[self.section]
+
+    def __create_backup(self):
+        return None
+
+class BackupJson:
+
+    from os import listdir
+    __version_limit = 10
+    __path = "Backups/"
+    __file_name = str
+    __selector = "__"
+
+    def __init__(self, data_type: bool):
+        base = BaseReader()
+        self.file = base.load_json(base.library_file_name) \
+            if data_type else \
+            base.load_json(base.config_file_name)
+        self.__file_name = base.library_file_name \
+            if data_type else \
+            base.config_file_name
+
+    def create_backup(self):
+        print(self.__create_file_name())
+        with open(self.__create_file_name(), "w", encoding="utf-8") as file:
+            json.dump(self.file, file, ensure_ascii=False, indent=4)
+
+    def return_last_version(self):
+        """
+        Returns last version found in backups folder
+        :return: int last version
+        """
+        all_versions = self.__check_versions()
+        if len(all_versions) > 0:
+            return all_versions[len(all_versions) - 1]
+        else:
+            return 0
+
+    def __check_versions(self):
+        """
+        Collects all files from backups
+        :return: list with all versions of given file name
+        """
+        version_list = []
+        for file in self.listdir(self.__path):
+            try:
+                temp_list = file.split(self.__selector)
+                if temp_list[1] == self.__file_name:
+                    version_list.append(int(temp_list[0]))
+            except Exception:
+                continue
+        version_list.sort()
+        return version_list
+
+    def __create_file_name(self):
+        """
+        Generates new file name with newest version
+        :return: new file name
+        """
+        new_version = self.return_last_version() + 1
+        file_name = str(new_version) + self.__selector + self.__file_name
+        return self.__add_path(file_name)
+
+    @classmethod
+    def __add_path(cls, file_name: str):
+        """
+        Adds file name into path
+        :param str file_name: file name
+        :return: str file name with path
+        """
+        return cls.__path + file_name
+
+# TODO: funkcja synchro zmieniająca ID
