@@ -726,7 +726,7 @@ class UpdateJson:
 
 class BackupJson:
 
-    from os import listdir
+    from os import listdir, remove
     __version_limit = 10
     __path = "Backups/"
     __file_name = str
@@ -742,9 +742,18 @@ class BackupJson:
             base.config_file_name
 
     def create_backup(self):
-        print(self.__create_file_name())
+        """
+        Startup func. Creates and deletes backup files.
+        :return: Nothing
+        """
         with open(self.__create_file_name(), "w", encoding="utf-8") as file:
             json.dump(self.file, file, ensure_ascii=False, indent=4)
+        if len(self.__check_versions()) >= self.__version_limit:
+            self.__delete_last_file(
+                self.__create_file_name(
+                    self.__return_oldest_version()
+                )
+            )
 
     def return_last_version(self):
         """
@@ -756,6 +765,21 @@ class BackupJson:
             return all_versions[len(all_versions) - 1]
         else:
             return 0
+
+    def __return_oldest_version(self):
+        """
+        Returns oldest id found in backup folder
+        :return: int oldest version
+        """
+        return self.__check_versions()[0]
+
+    def __delete_last_file(self, file_name: str):
+        """
+        Deletes given file from directory
+        :param str file_name: file name
+        :return: Nothing
+        """
+        self.remove(file_name)
 
     def __check_versions(self):
         """
@@ -773,12 +797,15 @@ class BackupJson:
         version_list.sort()
         return version_list
 
-    def __create_file_name(self):
+    def __create_file_name(self, version: int = None):
         """
         Generates new file name with newest version
         :return: new file name
         """
-        new_version = self.return_last_version() + 1
+        if not version:
+            new_version = self.return_last_version() + 1
+        if version:
+            new_version = version
         file_name = str(new_version) + self.__selector + self.__file_name
         return self.__add_path(file_name)
 
