@@ -126,11 +126,38 @@ class MainWindowMainloopTISettings:
         return data.return_all_data()
 
 
+class ItemsEngine:
+
+    def __init__(self):
+        self.editor = data_engine.ItemsWriter()
+
+    def del_methods(self,
+                    json_id: int,
+                    inner_id: int = None,
+                    item_bool: bool = False,
+                    material_bool: bool = False,
+                    work_material_bool: bool = False,
+                    step_bool: bool = False):
+        if not json_id:
+            return None
+        if item_bool:
+            self.editor.delete_item(json_id)
+        else:
+            self.editor.load_item(json_id)
+        if material_bool:
+            self.editor.delete_material(inner_id)
+        if work_material_bool:
+            self.editor.delete_work_material(inner_id)
+        if step_bool:
+            self.editor.delete_step(inner_id)
+
+
 class MainWindow:
 
     __item_list_label = "Lista przedmiotów"
     __task_list_label = "Lista zleceń"
-    __mainloop_main_treeview_selection = None
+    __mainloop_main_treeview_selection = __mainloop_materials_treeview_selection = \
+        __mainloop_work_materials_treeview_selection = __mainloop_steps_treeview_selection = None
     main_values = {
         __item_list_label: "1",
         __task_list_label: "2"
@@ -138,8 +165,12 @@ class MainWindow:
     select_list_rad_btn_x_start_pos = 250
     treeview_ti_obj = treeview_materials_obj = treeview_work_materials_obj = treeview_steps_obj = None
     treeview_materials_label = treeview_work_materials_label = treeview_steps_label = None
+    add_btn_materials_obj = del_btn_materials_obj = edit_btn_materials_obj = None
+    add_btn_work_materials_obj = del_btn_work_materials_obj = edit_btn_work_materials_obj = None
+    add_btn_steps_obj = del_btn_steps_obj = edit_btn_steps_obj = None
 
     def __init__(self):
+        # region Construct config
         config = data_engine.WindowConfigReader()
         config.read_main_window_config()
         self.geometry = config.return_geometry()
@@ -154,6 +185,8 @@ class MainWindow:
             self.select_list_rad_btn_value = 1
         elif config.return_default_view() == "Tasks":
             self.select_list_rad_btn_value = 2
+        # endregion
+        self.item_engine = ItemsEngine()
 
     # region Public methods
 
@@ -177,13 +210,52 @@ class MainWindow:
             generate_ti_view_mainloop()
             generate_details_view_mainloop()
 
+        def generate_ti_view_mainloop():
+            """
+            Generates tasks/items treeview.
+            :return: Nothing
+            """
+            if self.treeview_ti_obj:
+                self.treeview_ti_obj.destroy()
+            if self.select_list_rad_btn_value == "1" or self.select_list_rad_btn_value == 1:
+                create_treeview_main_mainloop(True)
+            if self.select_list_rad_btn_value == "2" or self.select_list_rad_btn_value == 2:
+                create_treeview_main_mainloop(False)
+            generate_details_view_mainloop()
+
         def create_treeview_main_mainloop(item_type: bool):
             """
             Creates treeview element in mainloop.
             :return: Nothing
             """
-            self.__create_treeview_main(main_frame, item_type)
-            self.treeview_ti_obj.bind('<Button-1>', read_ti_treeview)
+            if item_type:
+                self.__create_treeview_main(main_frame, item_type)
+                self.treeview_ti_obj.bind('<Button-1>', read_ti_treeview)
+
+        def generate_details_view_mainloop():
+            destroy_treeview_details()
+            if self.__mainloop_main_treeview_selection:
+                selected_id = self.__mainloop_main_treeview_selection
+            else:
+                selected_id = 0
+                self.__mainloop_main_treeview_selection = selected_id
+                # TODO: zmienić na 1
+            if self.select_list_rad_btn_value == "1" or self.select_list_rad_btn_value == 1:
+                self.__generate_item_details_view(main_frame, selected_id)
+                self.treeview_materials_obj.bind('<Button-1>',
+                                                 lambda event: read_details_treeview(event, materials_treeview=True))
+                self.treeview_work_materials_obj.bind('<Button-1>',
+                                                      lambda event: read_details_treeview(event,
+                                                                                          work_materials_treeview=True
+                                                                                          )
+                                                      )
+                self.treeview_steps_obj.bind('<Button-1>',
+                                             lambda event: read_details_treeview(event,
+                                                                                 steps_treeview=True
+                                                                                 )
+                                             )
+            if self.select_list_rad_btn_value == "2" or self.select_list_rad_btn_value == 2:
+                print("Tasks")
 
         def read_ti_treeview(event):
             """
@@ -193,20 +265,44 @@ class MainWindow:
             """
             rowid = self.treeview_ti_obj.identify_row(event.y)
             item = self.treeview_ti_obj.item(rowid)
+            if item["text"] == '':
+                item = self.treeview_ti_obj.item(self.treeview_ti_obj.focus())["text"]
+            else:
+                item = item["text"]
             self.__mainloop_main_treeview_selection = item
             generate_details_view_mainloop()
 
-        def generate_details_view_mainloop():
-            destroy_treeview_details()
-            if self.__mainloop_main_treeview_selection:
-                selected_id = self.__mainloop_main_treeview_selection["text"]
+        def read_details_treeview(event,
+                                  materials_treeview: bool = False,
+                                  work_materials_treeview: bool = False,
+                                  steps_treeview: bool = False):
+            """
+            Reads which item is selected form details treeview
+            :param event: binded event
+            :param materials_treeview: selector
+            :param work_materials_treeview: selector
+            :param steps_treeview: selector
+            :return: Nothing
+            """
+            print(self.__mainloop_main_treeview_selection)
+            if materials_treeview:
+                tree_obj = self.treeview_materials_obj
+            if work_materials_treeview:
+                tree_obj = self.treeview_work_materials_obj
+            if steps_treeview:
+                tree_obj = self.treeview_steps_obj
+            rowid = tree_obj.identify_row(event.y)
+            item = tree_obj.item(rowid)
+            if item["text"] == '':
+                item = tree_obj.item(tree_obj.focus())["text"]
             else:
-                selected_id = 0
-                # TODO: zmienić na 1
-            if self.select_list_rad_btn_value == "1" or self.select_list_rad_btn_value == 1:
-                self.__generate_item_details_view(main_frame, selected_id)
-            if self.select_list_rad_btn_value == "2" or self.select_list_rad_btn_value == 2:
-                print("Tasks")
+                item = item["text"]
+            if materials_treeview:
+                self.__mainloop_materials_treeview_selection = item
+            if work_materials_treeview:
+                self.__mainloop_work_materials_treeview_selection = item
+            if steps_treeview:
+                self.__mainloop_steps_treeview_selection = item
 
         def destroy_treeview_details():
             """
@@ -223,19 +319,6 @@ class MainWindow:
                 self.treeview_steps_obj.destroy()
                 self.treeview_steps_label.destroy()
 
-        def generate_ti_view_mainloop():
-            """
-            Generates tasks/items treeview.
-            :return: Nothing
-            """
-            if self.treeview_ti_obj:
-                self.treeview_ti_obj.destroy()
-            if self.select_list_rad_btn_value == "1" or self.select_list_rad_btn_value == 1:
-                create_treeview_main_mainloop(True)
-            if self.select_list_rad_btn_value == "2" or self.select_list_rad_btn_value == 2:
-                create_treeview_main_mainloop(False)
-            generate_details_view_mainloop()
-
         # endregion
 
         main_frame = Frame(window)
@@ -251,6 +334,10 @@ class MainWindow:
             select_list_rad_btn.place(x=self.select_list_rad_btn_x_start_pos, y=10)
             self.select_list_rad_btn_x_start_pos += 110
 
+        add_item_btn = Button(main_frame, text="+", width=2, background="lightgray")
+        delete_item_button = Button(main_frame, text="-", width=2, background="lightgray")
+        add_item_btn.place(x=625, y=10)
+        delete_item_button.place(x=650, y=10)
         generate_ti_view_mainloop()
 
         window.mainloop()
@@ -263,6 +350,16 @@ class MainWindow:
     def __generate_item_details_view(self, frame, item_id):
         self.__create_treeview_details(frame, item_id)
         self.__create_treeview_labels(frame)
+        self.__create_btn_items(frame, item_id)
+
+    def __create_btn_items(self, frame, item_id):
+        material_btns_list = self.__create_btn_items_generic(frame,
+                                                             item_id,
+                                                 [515, 215],
+                                                             material_bool=True)
+        self.add_btn_materials_obj = material_btns_list[0]
+        self.del_btn_materials_obj = material_btns_list[1]
+        self.edit_btn_materials_obj = material_btns_list[2]
 
     def __create_treeview_labels(self, frame):
         # TODO: przeliczyć i dopisać uwzględnienie wysokości treeview
@@ -314,7 +411,46 @@ class MainWindow:
         self.treeview_work_materials_obj = mainloop_obj_list[1]
         self.treeview_steps_obj = mainloop_obj_list[2]
 
+    def __create_btn_items_generic(self,
+                                   frame,
+                                   item_id: int,
+                                   btn_position: list,
+                                   material_bool: bool = False,
+                                   work_material_bool: bool = False,
+                                   steps_bool: bool = False):
+        name_list = ["Add", "Remove", "Edit"]
+        command_list = []
+        if material_bool:
+            command_list = [self.__add_material,
+                            lambda: self.item_engine.del_methods(
+                                item_id,
+                                inner_id=self.__mainloop_materials_treeview_selection,
+                                material_bool=True
+                            ),
+                            self.__edit_material]
+        if work_material_bool:
+            command_list = [self.add_work_material, self.del_work_material, self.edit_work_material]
+        if steps_bool:
+            command_list = [self.add_step, self.del_step, self.edit_step]
+        btn_obj_list = []
+        command_iterator = 0
+        for name in name_list:
+            btn = tkinter.ttk.Button(frame,
+                                     text=name,
+                                     command=command_list[command_iterator])
+            btn.place(x=btn_position[0], y=btn_position[1])
+            btn_position[1] += 33
+            btn_obj_list.append(btn)
+            command_iterator += 1
+        return btn_obj_list
+
     # endregion
+
+    def __add_material(self):
+        return None
+
+    def __edit_material(self):
+        return None
 
     def __create_treeview_main(self, frame, item_type: bool):
         """
@@ -363,3 +499,5 @@ class MainWindow:
         print("edit window", event)
 
     # endregion
+
+
