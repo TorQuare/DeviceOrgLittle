@@ -156,21 +156,20 @@ class MainWindow:
 
     __item_list_label = "Lista przedmiotów"
     __task_list_label = "Lista zleceń"
-    __mainloop_main_treeview_selection = __mainloop_materials_treeview_selection = \
-        __mainloop_work_materials_treeview_selection = __mainloop_steps_treeview_selection = None
-    main_values = {
+    __mainloop_main_treeview_selection = None
+    __main_values = {
         __item_list_label: "1",
         __task_list_label: "2"
     }
-    select_list_rad_btn_x_start_pos = 250
-    treeview_ti_obj = treeview_materials_obj = treeview_work_materials_obj = treeview_steps_obj = None
-    treeview_materials_label = treeview_work_materials_label = treeview_steps_label = None
-    add_btn_materials_obj = del_btn_materials_obj = edit_btn_materials_obj = None
-    add_btn_work_materials_obj = del_btn_work_materials_obj = edit_btn_work_materials_obj = None
-    add_btn_steps_obj = del_btn_steps_obj = edit_btn_steps_obj = None
+    __select_list_rad_btn_x_start_pos = 250
+
+    _treeview_ti_obj = None
+    _frame = None
+    _label_section_name = "Labels"
+    _button_section_name = "Buttons"
+    _treeview_section_name = "Treeview"
 
     def __init__(self):
-        # region Construct config
         config = data_engine.WindowConfigReader()
         config.read_main_window_config()
         self.geometry = config.return_geometry()
@@ -185,8 +184,6 @@ class MainWindow:
             self.select_list_rad_btn_value = 1
         elif config.return_default_view() == "Tasks":
             self.select_list_rad_btn_value = 2
-        # endregion
-        self.item_engine = ItemsEngine()
 
     # region Public methods
 
@@ -322,17 +319,18 @@ class MainWindow:
         # endregion
 
         main_frame = Frame(window)
+        self.frame = main_frame
         main_frame.pack(fill=BOTH, expand=True)
         list_def_value = StringVar(main_frame, str(self.select_list_rad_btn_value))
-        for (text, value) in self.main_values.items():
+        for (text, value) in self.__main_values.items():
             select_list_rad_btn = Radiobutton(main_frame,
                                               text=text,
                                               value=value,
                                               indicatoron=False,
                                               variable=list_def_value,
                                               command=get_radio_value_mainloop)
-            select_list_rad_btn.place(x=self.select_list_rad_btn_x_start_pos, y=10)
-            self.select_list_rad_btn_x_start_pos += 110
+            select_list_rad_btn.place(x=self.__select_list_rad_btn_x_start_pos, y=10)
+            self.__select_list_rad_btn_x_start_pos += 110
 
         add_item_btn = Button(main_frame, text="+", width=2, background="lightgray")
         delete_item_button = Button(main_frame, text="-", width=2, background="lightgray")
@@ -341,6 +339,9 @@ class MainWindow:
         generate_ti_view_mainloop()
 
         window.mainloop()
+
+    def return_frame(self):
+        return self.frame
 
     # endregion
     # region Private methods
@@ -501,3 +502,50 @@ class MainWindow:
     # endregion
 
 
+class ItemsViewMainWindow(MainWindow):
+
+    __mainloop_materials_treeview_selection = \
+        __mainloop_work_materials_treeview_selection = \
+        __mainloop_steps_treeview_selection = None
+
+    __tr_materials_obj = __tr_work_materials_obj = __tr_steps_obj = None
+
+    __tr_materials_label = __tr_work_materials_label = __tr_steps_label = None
+
+    add_btn_materials_obj = del_btn_materials_obj = edit_btn_materials_obj = None
+    add_btn_work_materials_obj = del_btn_work_materials_obj = edit_btn_work_materials_obj = None
+    add_btn_steps_obj = del_btn_steps_obj = edit_btn_steps_obj = None
+
+    __view_dict = {}
+
+    def __init__(self):
+        super().__init__()
+        self.items_engine = ItemsEngine()
+        self.view = MainWindowView(True)
+
+    def items_view(self, frame):
+        """
+        Startup func. Creates items view.
+        :return: Nothing
+        """
+        return None
+
+    def __render_buttons(self, frame):
+        return None
+
+
+
+class TasksViewMainWindow(MainWindow):
+
+    def __init__(self):
+        super().__init__()
+
+
+class MainWindowView:
+
+    def __init__(self, item_view: bool):
+        self.main_window_obj = MainWindow()
+        self.item_view = item_view
+
+    def create_view(self, view):
+        self.main_window_obj.start_window(view)
